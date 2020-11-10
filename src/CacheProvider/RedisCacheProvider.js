@@ -7,9 +7,11 @@ class CacheRedis {
     constructor() {
         this.client = new Redis(configRedis);
     }
+
     async save(key, value) {
         this.client.set(key, JSON.stringify(value));
     }
+
     async recovery(key) {
         const data = await this.client.get(key);
 
@@ -19,7 +21,22 @@ class CacheRedis {
 
         return JSON.parse(data);
     }
-    async invalidate(key) {}
+
+    //Invalida um object especifico
+    async invalidate(key) {
+        await this.client.del(key);
+    }
+
+    //Invalida grupos
+    async invalidatePrefix(prefix) {
+        const keys = await this.client.keys(`${prefix}:*`);
+
+        const pipeline = this.client.pipeline();
+
+        keys.forEach((key) => pipeline.del(key));
+
+        await pipeline.exec();
+    }
 }
 
 module.exports = CacheRedis;
