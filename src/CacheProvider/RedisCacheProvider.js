@@ -1,42 +1,45 @@
 const Redis = require("ioredis");
-const configRedis = require("../configs/cache");
+const redisConfig = require("../configs/cache");
 
 class CacheRedis {
-    static client;
+  static client;
 
-    constructor() {
-        this.client = new Redis(configRedis);
+  constructor() {
+    this.client = new Redis({
+      port: redisConfig.port,
+      host: redisConfig.host,
+    });
+  }
+
+  async save(key, value) {
+    this.client.set(key, JSON.stringify(value));
+  }
+
+  async recovery(key) {
+    const data = await this.client.get(key);
+
+    if (!data) {
+      return null;
     }
 
-    async save(key, value) {
-        this.client.set(key, JSON.stringify(value));
-    }
+    return JSON.parse(data);
+  }
 
-    async recovery(key) {
-        const data = await this.client.get(key);
+  //Invalida um object especifico
+  async invalidate(key) {
+    await this.client.del(key);
+  }
 
-        if (!data) {
-            return null;
-        }
+  //Invalida grupos
+  async invalidatePrefix(prefix) {
+    const keys = await this.client.keys(`${prefix}:*`);
 
-        return JSON.parse(data);
-    }
+    const pipeline = this.client.pipeline();
 
-    //Invalida um object especifico
-    async invalidate(key) {
-        await this.client.del(key);
-    }
+    keys.forEach((key) => pipeline.del(key));
 
-    //Invalida grupos
-    async invalidatePrefix(prefix) {
-        const keys = await this.client.keys(`${prefix}:*`);
-
-        const pipeline = this.client.pipeline();
-
-        keys.forEach((key) => pipeline.del(key));
-
-        await pipeline.exec();
-    }
+    await pipeline.exec();
+  }
 }
 
 module.exports = CacheRedis;
