@@ -1,8 +1,10 @@
 const { Router } = require("express");
 const api = require("./services/api");
 const CacheProvider = require("./CacheProvider");
+const rateLimit = require("./middlewares/rateLimiter.pokemon");
 
 const routes = Router();
+routes.use(rateLimit);
 
 routes.get("/insert/:limit", async (request, response) => {
   const { limit } = request.params;
