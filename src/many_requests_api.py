@@ -18,7 +18,7 @@ def main():
 
     base_url = "http://localhost:3333/"
 
-    for _ in range(500):
+    while(True):
 
         random_limit_value = randint(10, 1050)
 
