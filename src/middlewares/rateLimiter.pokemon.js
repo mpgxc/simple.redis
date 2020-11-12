@@ -1,8 +1,8 @@
 const RateLimit = require("./RateLimiter");
 
 const limiter = new RateLimit({
-  seconds: 5,
-  maxSolicitations: 5,
+  seconds: 15 * 60,
+  maxSolicitations: 3,
 });
 
 const rateLimit = async (request, response, next) => {

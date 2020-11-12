@@ -3,7 +3,7 @@ const redis = require("redis");
 const redisConfig = require("../configs/cache");
 
 class RateLimit {
-  constructor({ seconds = 1, maxSolicitations = 50 }) {
+  constructor({ seconds = 60, maxSolicitations = 1 }) {
     this.seconds = seconds;
     this.maxSolicitations = maxSolicitations;
 
@@ -16,7 +16,8 @@ class RateLimit {
     this.rateLimiterRedis = new RateLimiterRedis({
       storeClient: this.redisClient,
       points: this.maxSolicitations, //Maximo de solicitações
-      duration: seconds, //Por Segundo
+      duration: this.seconds, //Por Segundo
+      keyPrefix: "limiter-timeout",
     });
   }
 }

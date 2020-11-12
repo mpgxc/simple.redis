@@ -16,7 +16,7 @@ def print_with_color(color: str, data: dict) -> str:
 
 def main():
 
-    base_url = "http://localhost:3333/"
+    base_url = "http://localhost:3335/"
 
     while(True):
 
